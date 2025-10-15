@@ -4,87 +4,95 @@ using StargateAPI.Business.Commands;
 using StargateAPI.Business.Queries;
 using System.Net;
 
-namespace StargateAPI.Controllers
+namespace StargateAPI.Controllers;
+
+[ApiController]
+[Route("people")]
+public class PersonController : ControllerBase
 {
-   
-    [ApiController]
-    [Route("[controller]")]
-    public class PersonController : ControllerBase
+    private readonly IMediator _mediator;
+    public PersonController(IMediator mediator)
     {
-        private readonly IMediator _mediator;
-        public PersonController(IMediator mediator)
+        _mediator = mediator;
+    }
+
+    [HttpGet("")]
+    public async Task<IActionResult> GetPeople()
+    {
+        try
         {
-            _mediator = mediator;
+            var result = await _mediator.Send(new GetPeople() { });
+
+            return this.GetResponse(result);
         }
-
-        [HttpGet("")]
-        public async Task<IActionResult> GetPeople()
+        catch (BadHttpRequestException ex)
         {
-            try
+            return this.GetResponse(new BaseResponse()
             {
-                var result = await _mediator.Send(new GetPeople()
-                {
-
-                });
-
-                return this.GetResponse(result);
-            }
-            catch (Exception ex)
-            {
-                return this.GetResponse(new BaseResponse()
-                {
-                    Message = ex.Message,
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.InternalServerError
-                });
-            }
+                Message = ex.Message,
+            }, ex.StatusCode);
         }
-
-        [HttpGet("{name}")]
-        public async Task<IActionResult> GetPersonByName(string name)
+        catch (Exception ex)
         {
-            try
+            return this.GetResponse(new BaseResponse()
             {
-                var result = await _mediator.Send(new GetPersonByName()
-                {
-                    Name = name
-                });
-
-                return this.GetResponse(result);
-            }
-            catch (Exception ex)
-            {
-                return this.GetResponse(new BaseResponse()
-                {
-                    Message = ex.Message,
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.InternalServerError
-                });
-            }
+                Message = ex.Message,
+                // Success = false,
+                // ResponseCode = (int)HttpStatusCode.InternalServerError
+            }, (int)HttpStatusCode.InternalServerError);
         }
+    }
 
-        [HttpPost("")]
-        public async Task<IActionResult> CreatePerson([FromBody] string name)
+    [HttpGet("{name}")]
+    public async Task<IActionResult> GetPersonByName(string name)
+    {
+        try
         {
-            try
+            var result = await _mediator.Send(new GetPersonByName()
             {
-                var result = await _mediator.Send(new CreatePerson()
-                {
-                    Name = name
-                });
+                Name = name
+            });
 
-                return this.GetResponse(result);
-            }
-            catch (Exception ex)
+            return this.GetResponse(result);
+        }
+        catch (BadHttpRequestException ex)
+        {
+            return this.GetResponse(new BaseResponse()
             {
-                return this.GetResponse(new BaseResponse()
-                {
-                    Message = ex.Message,
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.InternalServerError
-                });
-            }
+                Message = ex.Message,
+            }, ex.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            return this.GetResponse(new BaseResponse()
+            {
+                Message = ex.Message,
+                // Success = false,
+                // ResponseCode = (int)HttpStatusCode.InternalServerError
+            }, (int)HttpStatusCode.InternalServerError);
+        }
+    }
 
+    [HttpPost("")]
+    public async Task<IActionResult> CreatePerson([FromBody] string name)
+    {
+        try
+        {
+            var result = await _mediator.Send(new CreatePerson()
+            {
+                Name = name
+            });
+
+            return this.GetResponse(result);
+        }
+        catch (Exception ex)
+        {
+            return this.GetResponse(new BaseResponse()
+            {
+                Message = ex.Message,
+                // Success = false,
+                // ResponseCode = (int)HttpStatusCode.InternalServerError
+            }, (int)HttpStatusCode.InternalServerError);
         }
     }
 }

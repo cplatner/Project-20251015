@@ -1,49 +1,56 @@
-﻿using MediatR;
+﻿using System.Net;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Queries;
-using System.Net;
 
-namespace StargateAPI.Controllers
+namespace StargateAPI.Controllers;
+
+[ApiController]
+[Route("astronaut-duties")]
+public class AstronautDutyController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class AstronautDutyController : ControllerBase
+    private readonly IMediator _mediator;
+
+    public AstronautDutyController(IMediator mediator)
     {
-        private readonly IMediator _mediator;
-        public AstronautDutyController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        _mediator = mediator;
+    }
 
-        [HttpGet("{name}")]
-        public async Task<IActionResult> GetAstronautDutiesByName(string name)
+    [HttpGet("{name}")]
+    public async Task<IActionResult> GetAstronautDutiesByName(string name)
+    {
+        try
         {
-            try
+            var result = await _mediator.Send(new GetAstronautDutiesByName
             {
-                var result = await _mediator.Send(new GetPersonByName()
-                {
-                    Name = name
-                });
+                Name = name
+            });
 
-                return this.GetResponse(result);
-            }
-            catch (Exception ex)
-            {
-                return this.GetResponse(new BaseResponse()
-                {
-                    Message = ex.Message,
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.InternalServerError
-                });
-            }            
+            return this.GetResponse(result);
         }
-
-        [HttpPost("")]
-        public async Task<IActionResult> CreateAstronautDuty([FromBody] CreateAstronautDuty request)
+        catch (BadHttpRequestException ex)
         {
-                var result = await _mediator.Send(request);
-                return this.GetResponse(result);           
+            return this.GetResponse(new BaseResponse
+            {
+                Message = ex.Message,
+            }, ex.StatusCode);
         }
+        catch (Exception ex)
+        {
+            return this.GetResponse(new BaseResponse
+            {
+                Message = ex.Message,
+                // Success = false,
+                // ResponseCode = (int)HttpStatusCode.InternalServerError
+            }, (int)HttpStatusCode.InternalServerError);
+        }
+    }
+
+    [HttpPost("")]
+    public async Task<IActionResult> CreateAstronautDuty([FromBody] CreateAstronautDuty request)
+    {
+        var result = await _mediator.Send(request);
+        return this.GetResponse(result);
     }
 }

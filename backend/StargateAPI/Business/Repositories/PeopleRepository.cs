@@ -9,9 +9,11 @@ public interface IPeopleRepository
 {
     public Task<bool> HasPerson(string name, CancellationToken cancellationToken);
 
-    public Task<List<PersonAstronaut>> GetPersonAstronauts(CancellationToken cancellationToken);
+    public Task<List<PersonAstronaut>> GetPeopleAstronauts(CancellationToken cancellationToken);
 
-    public Task<Person> CreatePerson(string name, CancellationToken cancellationToken);
+    public Task<PersonAstronaut> GetPersonByName(string name, CancellationToken cancellationToken);
+
+    public Task<Person> CreatePerson(Person newPerson, CancellationToken cancellationToken);
 }
 
 public sealed class PeopleRepository : IPeopleRepository
@@ -30,12 +32,12 @@ public sealed class PeopleRepository : IPeopleRepository
         return person is not null;
     }
 
-    public async Task<List<PersonAstronaut>> GetPersonAstronauts(CancellationToken cancellationToken = default)
+    public async Task<List<PersonAstronaut>> GetPeopleAstronauts(CancellationToken cancellationToken = default)
     {
         var query =
             """
-            SELECT a.Id as PersonId, a.Name, b.CurrentRank, b.CurrentDutyTitle, b.CareerStartDate, b.CareerEndDate 
-            FROM [Person] a 
+            SELECT a.Id as PersonId, a.Name, b.CurrentRank, b.CurrentDutyTitle, b.CareerStartDate, b.CareerEndDate
+            FROM [Person] a
             LEFT JOIN [AstronautDetail] b ON b.PersonId = a.Id
             """;
 
@@ -44,13 +46,23 @@ public sealed class PeopleRepository : IPeopleRepository
         return people.ToList();
     }
 
-    public async Task<Person> CreatePerson(string name, CancellationToken cancellationToken)
+    public async Task<PersonAstronaut?> GetPersonByName(string name, CancellationToken cancellationToken)
     {
-        var newPerson = new Person
-        {
-            Name = name
-        };
+        var query =
+            $"""
+            SELECT a.Id as PersonId, a.Name, b.CurrentRank, b.CurrentDutyTitle, b.CareerStartDate, b.CareerEndDate
+            FROM [Person] a
+            LEFT JOIN [AstronautDetail] b on b.PersonId = a.Id
+            WHERE '{name}' = a.Name
+            """;
 
+        var person = await _context.Connection.QueryAsync<PersonAstronaut>(query, cancellationToken);
+
+        return person?.FirstOrDefault();
+    }
+
+    public async Task<Person> CreatePerson(Person newPerson, CancellationToken cancellationToken)
+    {
         await _context.People.AddAsync(newPerson, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);

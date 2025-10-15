@@ -1,19 +1,24 @@
-﻿namespace StargateAPI.Business.Dtos
+﻿using System.Text.Json.Serialization;
+
+namespace StargateAPI.Business.Dtos;
+
+public class PersonAstronaut
 {
-    public class PersonAstronaut
-    {
-        public int PersonId { get; set; }
+    public int PersonId { get; init; }
 
-        public string Name { get; set; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
 
-        public string CurrentRank { get; set; } = string.Empty;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? CurrentRank { get; init; }
 
-        public string CurrentDutyTitle { get; set; } = string.Empty;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? CurrentDutyTitle { get; init; }
 
-        public DateTime? CareerStartDate { get; set; }
+    // @todo This should be a DateOnly
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? CareerStartDate { get; init; }
 
-        public DateTime? CareerEndDate { get; set; }
-
-
-    }
+    // @todo This should be a DateOnly
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? CareerEndDate { get; init; }
 }

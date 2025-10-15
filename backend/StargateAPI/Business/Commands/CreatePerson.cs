@@ -2,6 +2,7 @@
 using MediatR.Pipeline;
 using Microsoft.EntityFrameworkCore;
 using StargateAPI.Business.Data;
+using StargateAPI.Business.Repositories;
 using StargateAPI.Controllers;
 
 namespace StargateAPI.Business.Commands;
@@ -13,30 +14,33 @@ public class CreatePerson : IRequest<CreatePersonResult>
 
 public class CreatePersonPreProcessor : IRequestPreProcessor<CreatePerson>
 {
-    private readonly StargateContext _context;
-    public CreatePersonPreProcessor(StargateContext context)
+    private readonly IPeopleRepository _peopleRepository;
+
+    public CreatePersonPreProcessor(IPeopleRepository peopleRepository)
     {
-        _context = context;
+        _peopleRepository = peopleRepository;
     }
     
-    public Task Process(CreatePerson request, CancellationToken cancellationToken)
+    public async Task Process(CreatePerson request, CancellationToken cancellationToken)
     {
-        var person = _context.People.AsNoTracking().FirstOrDefault(z => z.Name == request.Name);
-
-        if (person is not null) throw new BadHttpRequestException("Bad Request");
-
-        return Task.CompletedTask;
+        if (await _peopleRepository.HasPerson(request.Name, cancellationToken))
+        {
+            throw new BadHttpRequestException("Cannot create duplicate person", StatusCodes.Status400BadRequest);
+        }
     }
 }
 
 public class CreatePersonHandler : IRequestHandler<CreatePerson, CreatePersonResult>
 {
     private readonly StargateContext _context;
+    private readonly IPeopleRepository _peopleRepository;
 
-    public CreatePersonHandler(StargateContext context)
+    public CreatePersonHandler(StargateContext context, IPeopleRepository peopleRepository)
     {
         _context = context;
+        _peopleRepository = peopleRepository;
     }
+    
     public async Task<CreatePersonResult> Handle(CreatePerson request, CancellationToken cancellationToken)
     {
         var newPerson = new Person()
@@ -44,10 +48,8 @@ public class CreatePersonHandler : IRequestHandler<CreatePerson, CreatePersonRes
             Name = request.Name
         };
 
-        await _context.People.AddAsync(newPerson);
-
-        await _context.SaveChangesAsync();
-
+        await _peopleRepository.CreatePerson(newPerson, cancellationToken);
+        
         return new CreatePersonResult()
         {
             Id = newPerson.Id
