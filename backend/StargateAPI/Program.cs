@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using StargateAPI;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Data;
+using StargateAPI.Business.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<StargateContext>(options => 
+builder.Services.AddDbContext<StargateContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("StarbaseApiDatabase")));
 
 builder.Services.AddMediatR(cfg =>
@@ -18,6 +20,8 @@ builder.Services.AddMediatR(cfg =>
     cfg.AddRequestPreProcessor<CreateAstronautDutyPreProcessor>();
     cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly);
 });
+
+builder.Services.AddRepositories();
 
 var app = builder.Build();
 
@@ -35,5 +39,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
