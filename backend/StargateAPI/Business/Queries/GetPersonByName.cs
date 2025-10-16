@@ -1,6 +1,4 @@
-﻿using Dapper;
-using MediatR;
-using StargateAPI.Business.Data;
+﻿using MediatR;
 using StargateAPI.Business.Dtos;
 using StargateAPI.Business.Repositories;
 using StargateAPI.Controllers;
@@ -14,12 +12,10 @@ public class GetPersonByName : IRequest<GetPersonByNameResult>
 
 public class GetPersonByNameHandler : IRequestHandler<GetPersonByName, GetPersonByNameResult>
 {
-    private readonly StargateContext _context;
     private readonly IPeopleRepository _repository;
 
-    public GetPersonByNameHandler(StargateContext context, IPeopleRepository repository)
+    public GetPersonByNameHandler(IPeopleRepository repository)
     {
-        _context = context;
         _repository = repository;
     }
 

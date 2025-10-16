@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using MediatR.Pipeline;
-using Microsoft.EntityFrameworkCore;
 using StargateAPI.Business.Data;
 using StargateAPI.Business.Repositories;
 using StargateAPI.Controllers;
@@ -32,12 +31,10 @@ public class CreatePersonPreProcessor : IRequestPreProcessor<CreatePerson>
 
 public class CreatePersonHandler : IRequestHandler<CreatePerson, CreatePersonResult>
 {
-    private readonly StargateContext _context;
     private readonly IPeopleRepository _peopleRepository;
 
-    public CreatePersonHandler(StargateContext context, IPeopleRepository peopleRepository)
+    public CreatePersonHandler(IPeopleRepository peopleRepository)
     {
-        _context = context;
         _peopleRepository = peopleRepository;
     }
     

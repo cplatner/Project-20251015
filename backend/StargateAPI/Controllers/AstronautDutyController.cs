@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Queries;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace StargateAPI.Controllers;
 
@@ -18,6 +19,8 @@ public class AstronautDutyController : ControllerBase
     }
 
     [HttpGet("{name}")]
+    [SwaggerResponse(200, "List of Astronaut Duties for a Person", typeof(GetAstronautDutiesByNameResult))]
+    [SwaggerResponse(404, "The Person was not found")]
     public async Task<IActionResult> GetAstronautDutiesByName(string name)
     {
         try
@@ -33,16 +36,14 @@ public class AstronautDutyController : ControllerBase
         {
             return this.GetResponse(new BaseResponse
             {
-                Message = ex.Message,
+                Message = ex.Message
             }, ex.StatusCode);
         }
         catch (Exception ex)
         {
             return this.GetResponse(new BaseResponse
             {
-                Message = ex.Message,
-                // Success = false,
-                // ResponseCode = (int)HttpStatusCode.InternalServerError
+                Message = ex.Message
             }, (int)HttpStatusCode.InternalServerError);
         }
     }
@@ -51,6 +52,6 @@ public class AstronautDutyController : ControllerBase
     public async Task<IActionResult> CreateAstronautDuty([FromBody] CreateAstronautDuty request)
     {
         var result = await _mediator.Send(request);
-        return this.GetResponse(result);
+        return this.GetResponse(result, (int)HttpStatusCode.Created);
     }
 }

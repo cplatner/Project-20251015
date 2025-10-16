@@ -11,6 +11,12 @@ namespace StargateAPI.Business.Commands;
 
 public class CreateAstronautDuty : IRequest<CreateAstronautDutyResult>
 {
+    /// <summary>
+    /// Name of the Person to assign this Astronaut Duty to
+    /// </summary>
+    /// <example>
+    /// Dan Sherman
+    /// </example>
     public required string Name { get; init; }
 
     public required string Rank { get; init; }
@@ -23,30 +29,33 @@ public class CreateAstronautDuty : IRequest<CreateAstronautDutyResult>
 public class CreateAstronautDutyPreProcessor : IRequestPreProcessor<CreateAstronautDuty>
 {
     private readonly StargateContext _context;
+    private readonly IPeopleRepository _peopleRepository;
+    private readonly IAstronautDutyRepository _astronautDutyRepository;
 
     public CreateAstronautDutyPreProcessor(StargateContext context, IPeopleRepository  peopleRepository, IAstronautDutyRepository astronautDutyRepository)
     {
         _context = context;
+        _peopleRepository = peopleRepository;
+        _astronautDutyRepository = astronautDutyRepository;
     }
 
-    public Task Process(CreateAstronautDuty request, CancellationToken cancellationToken)
+    public async Task Process(CreateAstronautDuty request, CancellationToken cancellationToken)
     {
         // @todo Move to repo
-        var person = _context.People.AsNoTracking().FirstOrDefault(z => z.Name == request.Name);
-
-        if (person is null)
+        // var person = _context.People.AsNoTracking().FirstOrDefault(z => z.Name == request.Name);
+        var hasPerson = await _peopleRepository.HasPerson(request.Name, cancellationToken);
+        
+        if (hasPerson)
         {
             throw new BadHttpRequestException("Person not found", StatusCodes.Status404NotFound);
         }
 
-        var verifyNoPreviousDuty = _context.AstronautDuties.FirstOrDefault(z => z.DutyTitle == request.DutyTitle && z.DutyStartDate == request.DutyStartDate);
-
-        if (verifyNoPreviousDuty is not null)
+        // var verifyNoPreviousDuty = _context.AstronautDuties.FirstOrDefault(z => z.DutyTitle == request.DutyTitle && z.DutyStartDate == request.DutyStartDate);
+        var hasDuty = await _astronautDutyRepository.HasPreviousDuty(request, cancellationToken);
+        if (hasDuty)
         {
-            throw new BadHttpRequestException("No previous Duty", StatusCodes.Status404NotFound);
+            throw new BadHttpRequestException("Has conflicting Astronaut Duty", StatusCodes.Status400BadRequest);
         }
-
-        return Task.CompletedTask;
     }
 }
 
