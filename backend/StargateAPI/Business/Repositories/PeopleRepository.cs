@@ -11,7 +11,9 @@ public interface IPeopleRepository
 
     public Task<List<PersonAstronaut>> GetPeopleAstronauts(CancellationToken cancellationToken);
 
-    public Task<PersonAstronaut> GetPersonByName(string name, CancellationToken cancellationToken);
+    public Task<PersonAstronaut> GetPersonAstronautByName(string name, CancellationToken cancellationToken);
+
+    public Task<Person?> GetPersonByName(string name, CancellationToken cancellationToken);
 
     public Task<Person> CreatePerson(Person newPerson, CancellationToken cancellationToken);
 }
@@ -46,7 +48,7 @@ public sealed class PeopleRepository : IPeopleRepository
         return people.ToList();
     }
 
-    public async Task<PersonAstronaut?> GetPersonByName(string name, CancellationToken cancellationToken)
+    public async Task<PersonAstronaut?> GetPersonAstronautByName(string name, CancellationToken cancellationToken)
     {
         var query =
             $"""
@@ -59,6 +61,20 @@ public sealed class PeopleRepository : IPeopleRepository
         var person = await _context.Connection.QueryAsync<PersonAstronaut>(query, cancellationToken);
 
         return person?.FirstOrDefault();
+    }
+
+    public async Task<Person?> GetPersonByName(string name, CancellationToken cancellationToken)
+    {
+        var query =
+            $"""
+             SELECT *
+             FROM [Person] a
+             WHERE '{name}' = a.Name
+             """;
+
+        var person = await _context.Connection.QueryFirstOrDefaultAsync<Person?>(query, cancellationToken);
+
+        return person;
     }
 
     public async Task<Person> CreatePerson(Person newPerson, CancellationToken cancellationToken)

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Queries;
 using Swashbuckle.AspNetCore.Annotations;
@@ -34,6 +35,7 @@ public class AstronautDutyController : ControllerBase
         }
         catch (BadHttpRequestException ex)
         {
+            Log.Information("Error getting Astronaut Duty for Person {Name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse
             {
                 Message = ex.Message
@@ -41,6 +43,7 @@ public class AstronautDutyController : ControllerBase
         }
         catch (Exception ex)
         {
+            Log.Information("Error getting Astronaut Duty for Person {Name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse
             {
                 Message = ex.Message
@@ -51,7 +54,27 @@ public class AstronautDutyController : ControllerBase
     [HttpPost("")]
     public async Task<IActionResult> CreateAstronautDuty([FromBody] CreateAstronautDuty request)
     {
-        var result = await _mediator.Send(request);
-        return this.GetResponse(result, (int)HttpStatusCode.Created);
+        try
+        {
+            var result = await _mediator.Send(request);
+            Log.Information("Created Astronaut Duty {DutyTitle} for Person {Name}", request.DutyTitle, request.Name);
+            return this.GetResponse(result, (int)HttpStatusCode.Created);
+        }
+        catch (BadHttpRequestException ex)
+        {
+            Log.Information("Error creating Astronaut Duty {DutyTitle} for Person {Name}, {Message}", request.DutyTitle, request.Name, ex.Message);
+            return this.GetResponse(new BaseResponse
+            {
+                Message = ex.Message
+            }, ex.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            Log.Information("Error creating Astronaut Duty {DutyTitle} for Person {Name}, {Message}", request.DutyTitle, request.Name, ex.Message);
+            return this.GetResponse(new BaseResponse
+            {
+                Message = ex.Message
+            }, (int)HttpStatusCode.InternalServerError);
+        }
     }
 }

@@ -28,6 +28,7 @@ public class PersonController : ControllerBase
         }
         catch (BadHttpRequestException ex)
         {
+            Log.Error("Error getting all People, {Message}", ex.Message);
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
@@ -35,6 +36,7 @@ public class PersonController : ControllerBase
         }
         catch (Exception ex)
         {
+            Log.Error("Error getting all People, {Message}", ex.Message);
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
@@ -56,6 +58,7 @@ public class PersonController : ControllerBase
         }
         catch (BadHttpRequestException ex)
         {
+            Log.Error("Error getting Person {name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
@@ -63,6 +66,7 @@ public class PersonController : ControllerBase
         }
         catch (Exception ex)
         {
+            Log.Error("Error getting Person {name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
@@ -80,13 +84,13 @@ public class PersonController : ControllerBase
                 Name = name
             });
 
-            Log.Information("Created Person {name}", name);
+            Log.Information("Created Person {Name}", name);
             // 201 is more appropriate here
             return this.GetResponse(result, (int)HttpStatusCode.Created);
         }
         catch (BadHttpRequestException ex)
         {
-            Log.Error("Error creating Person {name}, {message}", name, ex.Message);
+            Log.Error("Error creating Person {Name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
@@ -94,7 +98,7 @@ public class PersonController : ControllerBase
         }
         catch (Exception ex)
         {
-            Log.Error("Error creating Person {name}, {message}", name, ex.Message);
+            Log.Error("Error creating Person {Name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,

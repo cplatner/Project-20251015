@@ -45,24 +45,10 @@ public class GetAstronautDutiesByNameHandler : IRequestHandler<GetAstronautDutie
 
     public async Task<GetAstronautDutiesByNameResult> Handle(GetAstronautDutiesByName request, CancellationToken cancellationToken)
     {
-        // @todo move to repo
-//         var person = await _context.Connection.QueryFirstOrDefaultAsync<PersonAstronaut>(
-//             $"""
-//              SELECT a.Id as PersonId, a.Name, b.CurrentRank, b.CurrentDutyTitle, b.CareerStartDate, b.CareerEndDate 
-//              FROM [Person] a 
-//              LEFT JOIN [AstronautDetail] b on b.PersonId = a.Id WHERE '{request.Name}' = a.Name
-//              """);
-        var person = await _peopleRepository.GetPersonByName(request.Name, cancellationToken);
+        var person = await _peopleRepository.GetPersonAstronautByName(request.Name, cancellationToken);
         
-//         var duties = await _context.Connection.QueryAsync<AstronautDuty>(
-//             $"""
-//              SELECT * 
-//              FROM [AstronautDuty] 
-//              WHERE {person.PersonId} = PersonId 
-//              ORDER BY DutyStartDate DESC
-//              """);
         var duties = await _astronautDutyRepository.GetAstronautDuties(person.PersonId, cancellationToken);
-        
+        // @todo Add PersonAstronautDuty and mapper here
         var result = new GetAstronautDutiesByNameResult()
         {
             Person = person,

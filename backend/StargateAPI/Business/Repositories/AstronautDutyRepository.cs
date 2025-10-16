@@ -10,6 +10,8 @@ public interface IAstronautDutyRepository
     public Task<bool> HasPreviousDuty(CreateAstronautDuty request, CancellationToken cancellationToken);
     
     public Task<List<AstronautDuty>> GetAstronautDuties(int personId, CancellationToken cancellationToken);
+
+    public Task<AstronautDetail?> GetAstronautDetailByPersonId(int personId, CancellationToken cancellationToken);
 }
 
 public class AstronautDutyRepository : IAstronautDutyRepository
@@ -111,4 +113,12 @@ public class AstronautDutyRepository : IAstronautDutyRepository
 //             Id = newAstronautDuty.Id
 //         };
     // }
+
+    // @todo: Move this to an AstronautDetailRepository
+    public async Task<AstronautDetail?> GetAstronautDetailByPersonId(int personId, CancellationToken cancellationToken)
+    {
+        var query = $"SELECT * FROM [AstronautDetail] WHERE {personId} = PersonId";
+
+        return await _context.Connection.QueryFirstOrDefaultAsync<AstronautDetail?>(query);
+    }
 }
