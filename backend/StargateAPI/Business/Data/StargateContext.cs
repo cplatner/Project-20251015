@@ -5,14 +5,16 @@ namespace StargateAPI.Business.Data
 {
     public class StargateContext : DbContext
     {
+        // private readonly ILoggerFactory _loggerFactory;
         public IDbConnection Connection => Database.GetDbConnection();
         public DbSet<Person> People { get; set; }
         public DbSet<AstronautDetail> AstronautDetails { get; set; }
         public DbSet<AstronautDuty> AstronautDuties { get; set; }
 
-        public StargateContext(DbContextOptions<StargateContext> options)
+        public StargateContext(DbContextOptions<StargateContext> options/*, ILoggerFactory loggerFactory*/)
         : base(options)
         {
+            // _loggerFactory = loggerFactory;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -65,5 +67,14 @@ namespace StargateAPI.Business.Data
                     }
                 );
         }
+        
+        // From https://stackoverflow.com/questions/62300197/configuring-serilog-asp-net-core-3-2-with-ef-core-to-log-sql-statments
+        // This didn't work, and specifying the db file directly failed because the file was
+        // locked by EF.
+        // protected override void OnConfiguring(DbContextOptionsBuilder options)
+        // {
+        //     options.UseSqlite("Data Source=starbase.db");
+        //     options.UseLoggerFactory(_loggerFactory);
+        // }
     }
 }

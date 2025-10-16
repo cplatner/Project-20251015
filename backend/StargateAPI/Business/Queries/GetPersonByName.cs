@@ -21,6 +21,7 @@ public class GetPersonByNameHandler : IRequestHandler<GetPersonByName, GetPerson
 
     public async Task<GetPersonByNameResult> Handle(GetPersonByName request, CancellationToken cancellationToken)
     {
+        // Could do a preprocessor with this, but that's an extra hit on the DB for a read
         var person = await _repository.GetPersonAstronautByName(request.Name, cancellationToken);
         
         if (person is null)

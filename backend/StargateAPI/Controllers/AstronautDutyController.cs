@@ -35,7 +35,7 @@ public class AstronautDutyController : ControllerBase
         }
         catch (BadHttpRequestException ex)
         {
-            Log.Information("Error getting Astronaut Duty for Person {Name}, {Message}", name, ex.Message);
+            Log.Error("Error getting Astronaut Duty for Person {Name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse
             {
                 Message = ex.Message
@@ -43,7 +43,7 @@ public class AstronautDutyController : ControllerBase
         }
         catch (Exception ex)
         {
-            Log.Information("Error getting Astronaut Duty for Person {Name}, {Message}", name, ex.Message);
+            Log.Error("Error getting Astronaut Duty for Person {Name}, {Message}", name, ex.Message);
             return this.GetResponse(new BaseResponse
             {
                 Message = ex.Message
@@ -62,7 +62,7 @@ public class AstronautDutyController : ControllerBase
         }
         catch (BadHttpRequestException ex)
         {
-            Log.Information("Error creating Astronaut Duty {DutyTitle} for Person {Name}, {Message}", request.DutyTitle, request.Name, ex.Message);
+            Log.Error("Error creating Astronaut Duty {DutyTitle} for Person {Name}, {Message}", request.DutyTitle, request.Name, ex.Message);
             return this.GetResponse(new BaseResponse
             {
                 Message = ex.Message
@@ -70,7 +70,7 @@ public class AstronautDutyController : ControllerBase
         }
         catch (Exception ex)
         {
-            Log.Information("Error creating Astronaut Duty {DutyTitle} for Person {Name}, {Message}", request.DutyTitle, request.Name, ex.Message);
+            Log.Error("Error creating Astronaut Duty {DutyTitle} for Person {Name}, {Message}", request.DutyTitle, request.Name, ex.Message);
             return this.GetResponse(new BaseResponse
             {
                 Message = ex.Message
