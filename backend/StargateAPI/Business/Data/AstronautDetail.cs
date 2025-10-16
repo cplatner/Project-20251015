@@ -7,15 +7,15 @@ namespace StargateAPI.Business.Data;
 [Table("AstronautDetail")]
 public class AstronautDetail
 {
-    public int Id { get; set; }
+    public int Id { get; init; }
 
-    public int PersonId { get; set; }
+    public int PersonId { get; init; }
 
-    public string CurrentRank { get; set; } = string.Empty;
+    public string CurrentRank { get; set; }
 
-    public string CurrentDutyTitle { get; set; } = string.Empty;
+    public string CurrentDutyTitle { get; set; } 
 
-    public DateTime CareerStartDate { get; set; }
+    public DateTime CareerStartDate { get; init; }
 
     public DateTime? CareerEndDate { get; set; }
 

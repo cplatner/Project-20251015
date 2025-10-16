@@ -11,6 +11,12 @@ public interface IAstronautDutyRepository
     
     public Task<List<AstronautDuty>> GetAstronautDuties(int personId, CancellationToken cancellationToken);
 
+    public Task CreateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken);
+    
+    public Task UpdateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken);
+
+    public Task<AstronautDuty?> GetLastAstronautDuty(int personId, CancellationToken cancellationToken);
+
     public Task<AstronautDetail?> GetAstronautDetailByPersonId(int personId, CancellationToken cancellationToken);
 }
 
@@ -59,6 +65,22 @@ public class AstronautDutyRepository : IAstronautDutyRepository
 //
 //         var astronautDetail = await _context.Connection.QueryFirstOrDefaultAsync<AstronautDetail>(query);
 //
+public async Task  CreateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken)
+{
+        await _context.AstronautDetails.AddAsync(astronautDetail, cancellationToken);
+ 
+        await _context.SaveChangesAsync(cancellationToken);
+}
+
+public async Task  UpdateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken)
+{
+     _context.AstronautDetails.Update(astronautDetail);
+ 
+    await _context.SaveChangesAsync(cancellationToken);
+}
+
+
+
 //         if (astronautDetail == null)
 //         {
 //             astronautDetail = new AstronautDetail();
@@ -86,7 +108,20 @@ public class AstronautDutyRepository : IAstronautDutyRepository
 //         }
 //
 //         query = $"SELECT * FROM [AstronautDuty] WHERE {person.Id} = PersonId Order By DutyStartDate Desc";
-//
+
+    public async Task<AstronautDuty?> GetLastAstronautDuty(int personId, CancellationToken cancellationToken)
+    {
+        // Let the database do the work here...
+        var query = $"""
+            SELECT * FROM [AstronautDuty] 
+            WHERE {personId} = PersonId 
+            ORDER BY DutyStartDate DESC
+            LIMIT 1
+            """;
+
+        return await _context.Connection.QueryFirstOrDefaultAsync<AstronautDuty?>(query);
+    }
+    //
 //         var astronautDuty = await _context.Connection.QueryFirstOrDefaultAsync<AstronautDuty>(query);
 //
 //         if (astronautDuty != null)

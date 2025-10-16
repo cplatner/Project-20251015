@@ -7,13 +7,13 @@ namespace StargateAPI.Business.Repositories;
 
 public interface IPeopleRepository
 {
-    public Task<bool> HasPerson(string name, CancellationToken cancellationToken);
+    public Task<bool> HasPerson(string personName, CancellationToken cancellationToken);
 
     public Task<List<PersonAstronaut>> GetPeopleAstronauts(CancellationToken cancellationToken);
 
-    public Task<PersonAstronaut> GetPersonAstronautByName(string name, CancellationToken cancellationToken);
+    public Task<PersonAstronaut?> GetPersonAstronautByName(string personName, CancellationToken cancellationToken);
 
-    public Task<Person?> GetPersonByName(string name, CancellationToken cancellationToken);
+    public Task<Person?> GetPersonByName(string personName, CancellationToken cancellationToken);
 
     public Task<Person> CreatePerson(Person newPerson, CancellationToken cancellationToken);
 }
@@ -27,9 +27,9 @@ public sealed class PeopleRepository : IPeopleRepository
         _context = context;
     }
 
-    public async Task<bool> HasPerson(string name, CancellationToken cancellationToken)
+    public async Task<bool> HasPerson(string personName, CancellationToken cancellationToken)
     {
-        var person = await _context.People.AsNoTracking().FirstOrDefaultAsync(z => z.Name == name, cancellationToken);
+        var person = await _context.People.AsNoTracking().FirstOrDefaultAsync(z => z.Name == personName, cancellationToken);
 
         return person is not null;
     }
@@ -48,28 +48,28 @@ public sealed class PeopleRepository : IPeopleRepository
         return people.ToList();
     }
 
-    public async Task<PersonAstronaut?> GetPersonAstronautByName(string name, CancellationToken cancellationToken)
+    public async Task<PersonAstronaut?> GetPersonAstronautByName(string personName, CancellationToken cancellationToken)
     {
         var query =
             $"""
             SELECT a.Id as PersonId, a.Name, b.CurrentRank, b.CurrentDutyTitle, b.CareerStartDate, b.CareerEndDate
             FROM [Person] a
             LEFT JOIN [AstronautDetail] b on b.PersonId = a.Id
-            WHERE '{name}' = a.Name
+            WHERE '{personName}' = a.Name
             """;
 
-        var person = await _context.Connection.QueryAsync<PersonAstronaut>(query, cancellationToken);
+        var person = await _context.Connection.QueryFirstOrDefaultAsync<PersonAstronaut?>(query, cancellationToken);
 
-        return person?.FirstOrDefault();
+        return person;
     }
 
-    public async Task<Person?> GetPersonByName(string name, CancellationToken cancellationToken)
+    public async Task<Person?> GetPersonByName(string personName, CancellationToken cancellationToken)
     {
         var query =
             $"""
              SELECT *
              FROM [Person] a
-             WHERE '{name}' = a.Name
+             WHERE '{personName}' = a.Name
              """;
 
         var person = await _context.Connection.QueryFirstOrDefaultAsync<Person?>(query, cancellationToken);
