@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using StargateAPI;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Data;
+using StargateAPI.Business.Queries;
 using StargateAPI.Business.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,13 @@ builder.Services.AddMediatR(cfg =>
 });
 
 builder.Services.AddRepositories();
+
+// Configure the HostBuilder to use Serilog as the logging provider.
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    // Reads Serilog settings from appsettings.json (or other configuration sources)
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
 
 var app = builder.Build();
 

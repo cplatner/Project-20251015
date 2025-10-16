@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Queries;
 using System.Net;
+using Serilog;
 
 namespace StargateAPI.Controllers;
 
@@ -37,8 +38,6 @@ public class PersonController : ControllerBase
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
-                // Success = false,
-                // ResponseCode = (int)HttpStatusCode.InternalServerError
             }, (int)HttpStatusCode.InternalServerError);
         }
     }
@@ -67,8 +66,6 @@ public class PersonController : ControllerBase
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
-                // Success = false,
-                // ResponseCode = (int)HttpStatusCode.InternalServerError
             }, (int)HttpStatusCode.InternalServerError);
         }
     }
@@ -83,15 +80,24 @@ public class PersonController : ControllerBase
                 Name = name
             });
 
-            return this.GetResponse(result);
+            Log.Information("Created Person {name}", name);
+            // 201 is more appropriate here
+            return this.GetResponse(result, (int)HttpStatusCode.Created);
         }
-        catch (Exception ex)
+        catch (BadHttpRequestException ex)
         {
+            Log.Error("Error creating Person {name}, {message}", name, ex.Message);
             return this.GetResponse(new BaseResponse()
             {
                 Message = ex.Message,
-                // Success = false,
-                // ResponseCode = (int)HttpStatusCode.InternalServerError
+            }, ex.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Error creating Person {name}, {message}", name, ex.Message);
+            return this.GetResponse(new BaseResponse()
+            {
+                Message = ex.Message,
             }, (int)HttpStatusCode.InternalServerError);
         }
     }
