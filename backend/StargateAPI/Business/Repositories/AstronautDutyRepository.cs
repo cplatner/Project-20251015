@@ -31,6 +31,8 @@ public class AstronautDutyRepository : IAstronautDutyRepository
 
     public async Task<bool> HasPreviousDuty(CreateAstronautDuty request, CancellationToken cancellationToken)
     {
+        // note: I think this needs to disallow older duties also, but I didn't 
+        // add that yet,
         var verifyNoPreviousDuty = await _context.AstronautDuties.FirstOrDefaultAsync(z =>
             z.DutyTitle == request.DutyTitle
             && z.Rank == request.Rank
@@ -51,63 +53,21 @@ public class AstronautDutyRepository : IAstronautDutyRepository
 
         return duties.ToList();
     }
-
-    // @todo Create Duty
-// public async Task<CreateAstronautDutyResult> Handle(CreateAstronautDuty request, CancellationToken cancellationToken)
-//     {
-// // @todo move to repo
-//
-//         var query = $"SELECT * FROM [Person] WHERE \'{request.Name}\' = Name";
-//
-//         var person = await _context.Connection.QueryFirstOrDefaultAsync<Person>(query);
-//
-//         query = $"SELECT * FROM [AstronautDetail] WHERE {person.Id} = PersonId";
-//
-//         var astronautDetail = await _context.Connection.QueryFirstOrDefaultAsync<AstronautDetail>(query);
-//
-public async Task  CreateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken)
-{
+  
+    public async Task  CreateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken)
+    {
         await _context.AstronautDetails.AddAsync(astronautDetail, cancellationToken);
  
         await _context.SaveChangesAsync(cancellationToken);
-}
+    }
 
-public async Task  UpdateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken)
-{
+    public async Task  UpdateAstronautDetail(AstronautDetail astronautDetail, CancellationToken cancellationToken)
+    {
      _context.AstronautDetails.Update(astronautDetail);
  
     await _context.SaveChangesAsync(cancellationToken);
-}
+    }
 
-
-
-//         if (astronautDetail == null)
-//         {
-//             astronautDetail = new AstronautDetail();
-//             astronautDetail.PersonId = person.Id;
-//             astronautDetail.CurrentDutyTitle = request.DutyTitle;
-//             astronautDetail.CurrentRank = request.Rank;
-//             astronautDetail.CareerStartDate = request.DutyStartDate.Date;
-//             if (request.DutyTitle == "RETIRED")
-//             {
-//                 astronautDetail.CareerEndDate = request.DutyStartDate.Date;
-//             }
-//
-//             await _context.AstronautDetails.AddAsync(astronautDetail);
-//
-//         }
-//         else
-//         {
-//             astronautDetail.CurrentDutyTitle = request.DutyTitle;
-//             astronautDetail.CurrentRank = request.Rank;
-//             if (request.DutyTitle == "RETIRED")
-//             {
-//                 astronautDetail.CareerEndDate = request.DutyStartDate.AddDays(-1).Date;
-//             }
-//             _context.AstronautDetails.Update(astronautDetail);
-//         }
-//
-//         query = $"SELECT * FROM [AstronautDuty] WHERE {person.Id} = PersonId Order By DutyStartDate Desc";
 
     public async Task<AstronautDuty?> GetLastAstronautDuty(int personId, CancellationToken cancellationToken)
     {
